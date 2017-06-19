@@ -15,7 +15,7 @@
                 '${userRole}' when specified, should cause logout after login to an user with privileges lesser than requested
             -->
             <param-name>login.url</param-name>
-            <param-value>/login.jsp?permissionViolation=true&amp;os_destination=${originalurl}&amp;page_caps=${pageCaps}&amp;user_role=${userRole}</param-value>
+            <param-value>https://MY_CAS_SERVER_PREFIX/login?service=${originalurl}</param-value>
             <!--<param-value>http://sso.mycompany.com/login?redirectTo=${originalurl}</param-value>-->
         </init-param>
         <init-param>
@@ -25,7 +25,7 @@
                 - same properties as login.url above
             -->
             <param-name>link.login.url</param-name>
-            <param-value>/login.jsp?os_destination=${originalurl}</param-value>
+            <param-value>https://MY_CAS_SERVER_PREFIX/login?service=${originalurl}</param-value>
             <!--<param-value>/secure/Dashboard.jspa?os_destination=${originalurl}</param-value>-->
             <!--<param-value>http://sso.mycompany.com/login?redirectTo=${originalurl}</param-value>-->
         </init-param>
@@ -35,7 +35,7 @@
                  - If absolute (eg. SSO applications), Seraph calls Authenticator.logout() and redirects to the URL
                  -->
             <param-name>logout.url</param-name>
-            <param-value>/secure/Logout!default.jspa</param-value>
+            <param-value>https://MY_CAS_SERVER_PREFIX/logout</param-value>
             <!--<param-value>http://sso.mycompany.com/logout</param-value>-->
         </init-param>
         <!--
@@ -97,8 +97,22 @@
     <!-- CROWD:END -->
 
     <!-- CROWD:START - The authenticator below here will need to be commented out for Crowd SSO integration -->
-    <authenticator class="com.atlassian.jira.security.login.JiraSeraphAuthenticator"/>
+    <!-- <authenticator class="com.atlassian.jira.security.login.JiraSeraphAuthenticator"/> -->
     <!-- CROWD:END -->
+
+<!-- CAS:START - Java Client Confluence Authenticator -->
+<!--    <authenticator class="org.jasig.cas.client.integration.atlassian.Jira44CasAuthenticator"/> -->
+    <authenticator class="org.jasig.cas.client.integration.atlassian.Jira7CasAuthenticator">
+        <init-param>
+            <param-name>casServerUrlPrefix</param-name>
+            <param-value>https://MY_CAS_SERVER_PREFIX</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://MY_SERVER_PROXYNAME/</param-value>
+        </init-param>
+    </authenticator>
+<!-- CAS:END -->
 
     <!-- NB: the URL to redirect to is now specified by login.url above -->
     <services>

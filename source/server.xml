@@ -63,7 +63,8 @@
                    redirectPort="8443"
                    acceptCount="100"
                    disableUploadTimeout="true"
-                   bindOnInit="false"/>
+                   bindOnInit="false"
+                   scheme="https" proxyName="MY_SERVER_PROXYNAME" proxyPort="443" secure="true" />
 
         <!--
         ====================================================================================
@@ -85,15 +86,14 @@
 
         ====================================================================================
         -->
-        <!--
+
             <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
               maxHttpHeaderSize="8192" SSLEnabled="true"
               maxThreads="150" minSpareThreads="25"
               enableLookups="false" disableUploadTimeout="true"
               acceptCount="100" scheme="https" secure="true"
               clientAuth="false" sslProtocol="TLS" useBodyEncodingForURI="true"
-              keystoreFile="/opt/bamboo-agent/.keystore"/>
-        -->
+              keystorePass="changeit" keystoreFile="MY_SERVER_KEYSTORE" />
 
 
         <!--
