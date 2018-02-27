@@ -5,7 +5,7 @@ A quick make recipe to build and install CAS integration with Atlassian JIRA
 - Installed [Apereo CAS](https://github.com/apereo/cas)
 - Linux and GNU make (to run this recipe)
 - Git, JDK and Apache Maven (to build CAS Java client)
-- openssl (optional, to install LDAPS trust certificate in Confluence java keystore)
+- openssl (optional, to install LDAPS trust certificate in JIRA java keystore)
 
 ## Getting started
 Checkout `cas` branch
