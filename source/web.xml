@@ -30,15 +30,6 @@
     </filter>
 
     <filter>
-        <filter-name>InstantUpgradeHoldingFilter</filter-name>
-        <filter-class>com.atlassian.jira.web.filters.InstantUpgradeHoldingFilter</filter-class>
-        <init-param>
-            <param-name>permittedPaths</param-name>
-            <param-value>/status</param-value>
-        </init-param>
-    </filter>
-
-    <filter>
         <filter-name>StartupProgressFilter</filter-name>
         <filter-class>com.atlassian.jira.web.filters.StartupProgressFilter</filter-class>
     </filter>
@@ -67,21 +58,9 @@
         <filter-class>com.atlassian.jira.web.filters.JiraStaticAssetsFilter</filter-class>
     </filter>
 
-    <!-- If serious problems were encountered on Startup, this filter will display an
-            appropriate error message for any requests. Basically it locks JIRA. -->
-    <filter>
-        <filter-name>JiraStartupChecklist</filter-name>
-        <filter-class>com.atlassian.jira.startup.JiraStartupChecklistFilter</filter-class>
-    </filter>
-
     <filter>
         <filter-name>headersanitising</filter-name>
         <filter-class>com.atlassian.core.filters.HeaderSanitisingFilter</filter-class>
-    </filter>
-
-    <filter>
-        <filter-name>prevent-ie-accept-css-vulnerability</filter-name>
-        <filter-class>com.atlassian.jira.web.filters.XContentTypeOptionsNoSniffFilter</filter-class>
     </filter>
 
     <!--This filter is used to determine is there are any Application Errors before any pages are accessed    -->
@@ -184,6 +163,7 @@
             <param-name>exclude.paths</param-name>
             <param-value>
                 /secure/attachment,
+                /secure/temporaryattachment,
                 /secure/thumbnail,
                 /secure/applet*
             </param-value>
@@ -479,11 +459,6 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>InstantUpgradeHoldingFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>StartupProgressFilter</filter-name>
         <url-pattern>/startup.jsp</url-pattern>
     </filter-mapping>
@@ -522,11 +497,9 @@
         <url-pattern>/static-assets/*</url-pattern>
     </filter-mapping>
 
-    <!-- If serious problems were encountered on Startup, this filter will display an
-            appropriate error message for any requests. Basically it locks JIRA. -->
     <filter-mapping>
-        <filter-name>JiraStartupChecklist</filter-name>
-        <url-pattern>/*</url-pattern>
+        <filter-name>JiraStaticAssetsFilter</filter-name>
+        <url-pattern>/secure/better-johnson/build/*</url-pattern>
     </filter-mapping>
 
     <!-- THIS MUST REMAIN AS THE TOP FILTER SO THAT THE ENCODING CAN BE SET BEFORE ANYTHING ELSE TOUCHES IT -->
@@ -878,14 +851,6 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>prevent-ie-accept-css-vulnerability</filter-name>
-        <url-pattern>/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>ERROR</dispatcher>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>JiraLastFilter</filter-name>
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
@@ -952,16 +917,6 @@
     </servlet>
 
     <servlet>
-        <servlet-name>instantupgrade</servlet-name>
-        <servlet-class>com.atlassian.jira.web.startup.InstantUpgradeServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>quiesce</servlet-name>
-        <servlet-class>com.atlassian.jira.web.task.TaskQuiescingServlet</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>action</servlet-name>
         <servlet-class>com.atlassian.jira.web.dispatcher.JiraWebworkActionDispatcher</servlet-class>
         <load-on-startup>1</load-on-startup>
@@ -975,6 +930,11 @@
     <servlet>
         <servlet-name>viewattachment</servlet-name>
         <servlet-class>com.atlassian.jira.web.servlet.ViewAttachmentServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>viewtemporaryattachment</servlet-name>
+        <servlet-class>com.atlassian.jira.web.servlet.ViewTemporaryAttachmentServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -1039,6 +999,21 @@
     </servlet>
 
     <servlet>
+        <servlet-name>johnson-analytics-servlet</servlet-name>
+        <servlet-class>com.atlassian.jira.web.servlet.JohnsonAnalyticsServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>johnson-data-servlet</servlet-name>
+        <servlet-class>com.atlassian.jira.web.servlet.JohnsonDataServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>johnson-warning-servlet</servlet-name>
+        <servlet-class>com.atlassian.jira.web.servlet.JohnsonWarningsServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>searchrequest-view</servlet-name>
         <servlet-class>com.atlassian.jira.web.servlet.SearchRequestViewServlet</servlet-class>
         <load-on-startup>4</load-on-startup>
@@ -1075,16 +1050,6 @@
     <servlet-mapping>
         <servlet-name>appstatus</servlet-name>
         <url-pattern>/status</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>instantupgrade</servlet-name>
-        <url-pattern>/instantupgrade</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>quiesce</servlet-name>
-        <url-pattern>/quiesce/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -1136,11 +1101,6 @@
         <url-pattern>/databaseLockedError</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>noopservlet</servlet-name>
-        <url-pattern>/JiraLockedError</url-pattern>
-    </servlet-mapping>
-
     <!-- This are dummy servlet mappings to trick WebSphere 6.1.0.5 to push the request through the filter chain, such
     that the TrustedApplicationFilter filter can respond to the request. -->
     <servlet-mapping>
@@ -1151,6 +1111,11 @@
     <servlet-mapping>
         <servlet-name>viewattachment</servlet-name>
         <url-pattern>/secure/attachment/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>viewtemporaryattachment</servlet-name>
+        <url-pattern>/secure/temporaryattachment/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -1208,6 +1173,21 @@
         <url-pattern>*.vmd</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>johnson-data-servlet</servlet-name>
+        <url-pattern>/secure/johnson/data/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>johnson-warning-servlet</servlet-name>
+        <url-pattern>/secure/johnson/warnings/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>johnson-analytics-servlet</servlet-name>
+        <url-pattern>/secure/johnson/analytics/*</url-pattern>
+    </servlet-mapping>
+
     <!-- session config -->
     <session-config>
         <session-timeout>300</session-timeout>
@@ -1225,6 +1205,16 @@
     <mime-mapping>
         <extension>xsd</extension>
         <mime-type>text/xml</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+        <extension>woff</extension>
+        <mime-type>application/x-font-woff</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+        <extension>ttf</extension>
+        <mime-type>application/x-font-ttf</mime-type>
     </mime-mapping>
 
     <!-- welcome files -->
@@ -1802,11 +1792,6 @@ description, distributable, and context-param elements.
     </servlet>
 
     <servlet>
-        <servlet-name>jsp.secure.bonfire.setup_002dbonfire_jsp</servlet-name>
-        <servlet-class>jsp.secure.bonfire.setup_002dbonfire_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>jsp.secure.admin.websudoresubmit_jsp</servlet-name>
         <servlet-class>jsp.secure.admin.websudoresubmit_jsp</servlet-class>
     </servlet>
@@ -2257,18 +2242,18 @@ description, distributable, and context-param elements.
     </servlet>
 
     <servlet>
-        <servlet-name>jsp.secure.admin.views.priorities.viewpriorities_jsp</servlet-name>
-        <servlet-class>jsp.secure.admin.views.priorities.viewpriorities_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>jsp.secure.admin.views.priorities.editpriority_jsp</servlet-name>
-        <servlet-class>jsp.secure.admin.views.priorities.editpriority_jsp</servlet-class>
+        <servlet-name>jsp.secure.admin.views.priorities.addoreditpriority_jsp</servlet-name>
+        <servlet-class>jsp.secure.admin.views.priorities.addoreditpriority_jsp</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>jsp.secure.admin.views.priorities.deletepriority_jsp</servlet-name>
         <servlet-class>jsp.secure.admin.views.priorities.deletepriority_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>jsp.secure.admin.views.priorities.associatepriorityscheme_jsp</servlet-name>
+        <servlet-class>jsp.secure.admin.views.priorities.associatepriorityscheme_jsp</servlet-class>
     </servlet>
 
     <servlet>
@@ -3932,11 +3917,6 @@ description, distributable, and context-param elements.
     </servlet>
 
     <servlet>
-        <servlet-name>jsp.decorators.setup_002dbonfire_jsp</servlet-name>
-        <servlet-class>jsp.decorators.setup_002dbonfire_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>jsp.decorators.userprofile_jsp</servlet-name>
         <servlet-class>jsp.decorators.userprofile_jsp</servlet-class>
     </servlet>
@@ -4064,11 +4044,6 @@ description, distributable, and context-param elements.
     <servlet>
         <servlet-name>jsp.views.setup_002dmail_002dnotifications_jsp</servlet-name>
         <servlet-class>jsp.views.setup_002dmail_002dnotifications_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>jsp.views.cleandatabase_jsp</servlet-name>
-        <servlet-class>jsp.views.cleandatabase_jsp</servlet-class>
     </servlet>
 
     <servlet>
@@ -4777,16 +4752,6 @@ description, distributable, and context-param elements.
     </servlet>
 
     <servlet>
-        <servlet-name>jsp.template.raw.projectshare_jsp</servlet-name>
-        <servlet-class>jsp.template.raw.projectshare_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>jsp.template.raw.projectsharedialog_jsp</servlet-name>
-        <servlet-class>jsp.template.raw.projectsharedialog_jsp</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>jsp.template.common.selectWithTextArea_jsp</servlet-name>
         <servlet-class>jsp.template.common.selectWithTextArea_jsp</servlet-class>
     </servlet>
@@ -5342,11 +5307,6 @@ description, distributable, and context-param elements.
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>jsp.secure.bonfire.setup_002dbonfire_jsp</servlet-name>
-        <url-pattern>/secure/bonfire/setup-bonfire.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>jsp.secure.admin.websudoresubmit_jsp</servlet-name>
         <url-pattern>/secure/admin/websudoresubmit.jsp</url-pattern>
     </servlet-mapping>
@@ -5797,18 +5757,18 @@ description, distributable, and context-param elements.
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>jsp.secure.admin.views.priorities.viewpriorities_jsp</servlet-name>
-        <url-pattern>/secure/admin/views/priorities/viewpriorities.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jsp.secure.admin.views.priorities.editpriority_jsp</servlet-name>
-        <url-pattern>/secure/admin/views/priorities/editpriority.jsp</url-pattern>
+        <servlet-name>jsp.secure.admin.views.priorities.addoreditpriority_jsp</servlet-name>
+        <url-pattern>/secure/admin/views/priorities/addoreditpriority.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>jsp.secure.admin.views.priorities.deletepriority_jsp</servlet-name>
         <url-pattern>/secure/admin/views/priorities/deletepriority.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>jsp.secure.admin.views.priorities.associatepriorityscheme_jsp</servlet-name>
+        <url-pattern>/secure/admin/views/priorities/associatepriorityscheme.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -7472,11 +7432,6 @@ description, distributable, and context-param elements.
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>jsp.decorators.setup_002dbonfire_jsp</servlet-name>
-        <url-pattern>/decorators/setup-bonfire.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>jsp.decorators.userprofile_jsp</servlet-name>
         <url-pattern>/decorators/userprofile.jsp</url-pattern>
     </servlet-mapping>
@@ -7604,11 +7559,6 @@ description, distributable, and context-param elements.
     <servlet-mapping>
         <servlet-name>jsp.views.setup_002dmail_002dnotifications_jsp</servlet-name>
         <url-pattern>/views/setup-mail-notifications.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jsp.views.cleandatabase_jsp</servlet-name>
-        <url-pattern>/views/cleandatabase.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -8314,16 +8264,6 @@ description, distributable, and context-param elements.
     <servlet-mapping>
         <servlet-name>jsp.template.raw.userselect_jsp</servlet-name>
         <url-pattern>/template/raw/userselect.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jsp.template.raw.projectshare_jsp</servlet-name>
-        <url-pattern>/template/raw/projectshare.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jsp.template.raw.projectsharedialog_jsp</servlet-name>
-        <url-pattern>/template/raw/projectsharedialog.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
